@@ -1,23 +1,66 @@
-import React from 'react';
-import Task from './Task';
+import React, { useEffect, useState } from "react";
+import Task from "./Task";
 
-const TaskList = () => {
-    const tasks = [
-        {id: 1, name: 'Task 1', completed: false},
-        {id: 2, name: 'Task 2', completed: true},
-        {id: 3, name: 'Task 3', completed: false},
-    ];
+function TaskList() {
+  const [tasks, setTasks] = useState(() => {
+    const storedTasks = JSON.parse(localStorage.getItem("tasks"));
+    if (storedTasks) {
+      return storedTasks;
+    } else {
+      return [];
+    }
+  });
+  const [newTaskName, setNewTaskName] = useState("");
 
-    retunr (
-        <div>
-            <h2>Lista de tareas</h2>
-            <ul>
-                {tasks.map( (task) => (
-                    <task key={task.id} task={task}/>
-                ))}
-            </ul>
-        </div>
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
+
+  const handleTaskToggle = (id) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
     );
-};
+  };
+
+  
+  const handleTaskDelete = (id) => {
+    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+  };
+
+  const handleAddTask = () => {
+    if (newTaskName.trim() !== "") {
+      const newTask = {
+        id: Date.now(),
+        name: newTaskName,
+        completed: false,
+      };
+      setTasks((prevTasks) => [...prevTasks, newTask]);
+      setNewTaskName("");
+    }
+  };
+
+  return (
+    <div>
+      <div>
+        <input
+          type="text"
+          value={newTaskName}
+          onChange={(e) => setNewTaskName(e.target.value)}
+        />
+        <button onClick={handleAddTask}>Agregar Tarea</button>
+      </div>
+      {tasks.map((task) => (
+        <Task
+          key={task.id}
+          task={task}
+          handleTaskToggle={handleTaskToggle}
+          handleTaskDelete={handleTaskDelete}
+        />
+      ))}
+    </div>
+  );
+}
 
 export default TaskList;
