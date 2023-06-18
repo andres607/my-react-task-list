@@ -24,6 +24,7 @@ function TaskList() {
     );
   };
 
+  
   const handleTaskDelete = (id) => {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
   };
