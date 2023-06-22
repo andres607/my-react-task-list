@@ -1,32 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Task from "./Task";
+import useTask from "../hooks/useTask";
 
 function TaskList() {
-  const [tasks, setTasks] = useState(() => {
-    const storedTasks = JSON.parse(localStorage.getItem("tasks"));
-    if (storedTasks) {
-      return storedTasks;
-    } else {
-      return [];
-    }
-  });
+  const { tasks, createTask, deleteTask, updateTask } = useTask();
   const [newTaskName, setNewTaskName] = useState("");
 
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
-
   const handleTaskToggle = (id) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
+    const updatedTask = tasks.find((task) => task.id === id);
+    updatedTask.completed = !updatedTask.completed;
+    updateTask(id, updatedTask);
   };
 
-  
   const handleTaskDelete = (id) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+    deleteTask(id);
   };
 
   const handleAddTask = () => {
@@ -36,9 +23,13 @@ function TaskList() {
         name: newTaskName,
         completed: false,
       };
-      setTasks((prevTasks) => [...prevTasks, newTask]);
+      createTask(newTask);
       setNewTaskName("");
     }
+  };
+
+  const handleTaskUpdate = (id, updatedTask) => {
+    updateTask(id, updatedTask);
   };
 
   return (
@@ -57,6 +48,7 @@ function TaskList() {
           task={task}
           handleTaskToggle={handleTaskToggle}
           handleTaskDelete={handleTaskDelete}
+          handleTaskUpdate={handleTaskUpdate}
         />
       ))}
     </div>
