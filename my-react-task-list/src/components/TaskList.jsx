@@ -1,23 +1,58 @@
-import React from 'react';
-import Task from './Task';
+import React, { useState } from "react";
+import Task from "./Task";
+import useTask from "../hooks/useTask";
 
-const TaskList = () => {
-    const tasks = [
-        {id: 1, name: 'Task 1', completed: false},
-        {id: 2, name: 'Task 2', completed: true},
-        {id: 3, name: 'Task 3', completed: false},
-    ];
+function TaskList() {
+  const { tasks, createTask, deleteTask, updateTask } = useTask();
+  const [newTaskName, setNewTaskName] = useState("");
 
-    retunr (
-        <div>
-            <h2>Lista de tareas</h2>
-            <ul>
-                {tasks.map( (task) => (
-                    <task key={task.id} task={task}/>
-                ))}
-            </ul>
-        </div>
-    );
-};
+  const handleTaskToggle = (id) => {
+    const updatedTask = tasks.find((task) => task.id === id);
+    updatedTask.completed = !updatedTask.completed;
+    updateTask(id, updatedTask);
+  };
+
+  const handleTaskDelete = (id) => {
+    deleteTask(id);
+  };
+
+  const handleAddTask = () => {
+    if (newTaskName.trim() !== "") {
+      const newTask = {
+        id: Date.now(),
+        name: newTaskName,
+        completed: false,
+      };
+      createTask(newTask);
+      setNewTaskName("");
+    }
+  };
+
+  const handleTaskUpdate = (id, updatedTask) => {
+    updateTask(id, updatedTask);
+  };
+
+  return (
+    <div>
+      <div>
+        <input
+          type="text"
+          value={newTaskName}
+          onChange={(e) => setNewTaskName(e.target.value)}
+        />
+        <button onClick={handleAddTask}>Agregar Tarea</button>
+      </div>
+      {tasks.map((task) => (
+        <Task
+          key={task.id}
+          task={task}
+          handleTaskToggle={handleTaskToggle}
+          handleTaskDelete={handleTaskDelete}
+          handleTaskUpdate={handleTaskUpdate}
+        />
+      ))}
+    </div>
+  );
+}
 
 export default TaskList;
